@@ -11,9 +11,14 @@
 
 ## 快速开始
 
+本仓库包含 **AI Digital Software Studio** 项目，详见 [`ai-digital-studio/README.md`](./ai-digital-studio/README.md)。
+
 ```bash
 git clone -b personal-workbench https://github.com/zhangcong1/AICoding.git
-cd AICoding
+cd AICoding/ai-digital-studio
+pnpm install
+pnpm docker:up && pnpm db:push
+pnpm dev
 ```
 
 ## 相关链接

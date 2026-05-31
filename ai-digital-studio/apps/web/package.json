@@ -1,0 +1,52 @@
+{
+  "name": "@ai-studio/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-studio/shared-types": "workspace:*",
+    "@electric-sql/pglite": "^0.2.0",
+    "@gitbeaker/rest": "^42.0.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/openai": "^0.3.0",
+    "@qdrant/js-client-rest": "^1.12.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@tanstack/react-query": "^5.0.0",
+    "@xyflow/react": "^12.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "drizzle-orm": "^0.38.0",
+    "framer-motion": "^11.0.0",
+    "ioredis": "^5.4.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.1.0",
+    "postgres": "^3.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.0",
+    "three": "^0.184.0",
+    "zod": "^3.23.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.184.1",
+    "autoprefixer": "^10.4.0",
+    "drizzle-kit": "^0.29.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.7.0"
+  }
+}
