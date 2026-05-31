@@ -62,6 +62,23 @@
 
 ---
 
+## 文档技能（1）
+
+| 技能 | 来源 | 说明 |
+|------|------|------|
+| `pptx` | [anthropics/skills](https://github.com/anthropics/skills) | 读取 / 编辑 / 创建 `.pptx`；文本提取、缩略图预览、模板编辑 |
+
+---
+
+## 通用元技能（2）
+
+| 技能 | 来源 | 说明 |
+|------|------|------|
+| `find-skills` | [vercel-labs/skills](https://github.com/vercel-labs/skills) | 搜索、发现、安装生态中的 Agent Skills |
+| `skill-creator` | [anthropics/skills](https://github.com/anthropics/skills) | 设计、编写、打包、验证新 Skill |
+
+---
+
 ## 典型工作流
 
 ```
