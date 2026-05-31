@@ -1,7 +1,20 @@
 <!-- superpowers-zh:begin -->
 # Superpowers-ZH 中文增强版
 
-本项目已安装 superpowers-zh 技能框架（20 个 skills）。
+本项目已安装 superpowers-zh 技能框架（20 个 skills），并采用**规范驱动开发**。
+
+## 目录约定
+
+| 路径 | 用途 |
+|------|------|
+| `spec/specs/` | 当前系统能力真理源 |
+| `spec/changes/` | 需求迭代（proposal / design / tasks / delta specs） |
+| `docs/` | 需沉淀的人类文档（培训、ADR、用户说明） |
+| `spec/ME2AI/` | 人类 → AI 的原始输入（需求、反馈、模板） |
+| `spec/AI2AI/` | AI 中间产物与草稿（默认不入库） |
+| `src/` | 应用代码（Next.js + Drizzle，见 `spec/project.md`） |
+
+详细规则见 `spec/AGENTS.md` 与根目录 `AGENTS.md`。
 
 ## 核心规则
 
