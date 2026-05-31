@@ -14,7 +14,15 @@
 | `spec/AI2AI/` | AI 中间产物与草稿（默认不入库） |
 | `src/` | 应用代码（Next.js + Drizzle，见 `spec/project.md`） |
 
-详细规则见 `spec/AGENTS.md` 与根目录 `AGENTS.md`。
+详细规则见 `spec/AGENTS.md`、根目录 `AGENTS.md` 与 `.codebuddy/rules/`。
+
+## 项目规则文件
+
+| 文件 | 作用 |
+|------|------|
+| `.codebuddy/rules/spec-driven.md` | 规范驱动工作流强制规则 |
+| `.codebuddy/rules/web-stack.md` | 网站开发技术栈兜底约束 |
+| `.cursor/rules/project.mdc` | Cursor 会话自动加载规则 |
 
 ## 核心规则
 

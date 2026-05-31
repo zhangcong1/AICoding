@@ -6,147 +6,62 @@
 
 目前使用 AICoding 已经落地实现了三个线上的系统平台：大模型场景管理系统、代码智能解析平台、智能体人机协作平台。
 
-这三个系统，不是跟 AI 说「帮我做一个 XX 平台」，就完成了。而是包括从需求设计、前后端开发、数据库设计等完整的系统，并且也经过多次产品功能迭代持续演进，最终形成能上线、能闭环使用的完整应用。
+这三个系统，不是跟 AI 说「帮我做一个 XX 平台」，就完成了。而是包括从需求设计、前后端开发、数据库设计等完整的系统，并且也经过多次产品功能迭代持续演进，最终形成可持续维护的能上线、能闭环使用的完整应用。
 
 AICoding 不止是帮助开发写几段代码，而是把「需求澄清 → 方案设计 → 拆解计划 → 编码实现 → 测试验证 → 文档交付」整条链路加速。产品经理的价值，在于**把问题定义清楚、把边界划明白、把验收标准写具体**——这样 AICoding 才能稳定产出可用系统。
 
 ---
 
-## 二、前置工作：Agent 与 Skill 配置
+## 二、配置智能体与网站开发
 
 AICoding 偏开发场景，不会像 WorkBuddy 那样内置「网站开发」「PPT 制作」「产品管理」等现成智能体。需要自行安装 Skill，或在 `.codebuddy/agents/` 下编写 Agent。
 
-本项目已配置：
+网站类项目推荐使用 **`@网站开发`** 智能体（配置于 `.codebuddy/agents/engineering/网站开发.md`）。对话中 `@网站开发` 即可启动——它会按规范驱动流程，把需求变成**能本地运行、能持续迭代**的完整 Web 应用（前端页面 + 后端 API + 数据库），而不是只生成几页静态界面。
 
-| 类型 | 位置 | 作用 |
-|------|------|------|
-| 工作方法论 | `.codebuddy/skills/` | Superpowers（brainstorming、TDD、代码审查等，共 20 个） |
-| 网站开发 Skill | `.codebuddy/skills/` | ui-ux-pro-max、frontend-design 等（共 4 个） |
-| 专家 Agent | `.codebuddy/agents/` | 产品、设计、工程、测试等 64 个角色 |
-| **网站开发 Agent** | `.codebuddy/agents/engineering/网站开发.md` | 全栈网站开发（设计 + 前后端 + 本地 PostgreSQL） |
+**适用场景**：管理后台、业务平台、数据看板、协作门户等（新建或迭代均可）。
 
-### Agent 与 Skill 的区别
+**内置原则**：设计确认前不写代码；MVP 优先；交付前必须能演示、能构建。
 
-| | Agent（智能体） | Skill（技能） |
-|---|----------------|---------------|
-| 是什么 | 带人格与完整流程的「专家角色」 | 某一领域的「工作方法 / 规范库」 |
-| 怎么调用 | `@网站开发`、`@product-manager` | `/ui-ux-pro-max`，或由 Agent 自动加载 |
-| 典型用途 | 委派一整条任务链路 | 设计规范、性能最佳实践、TDD 流程等 |
-| 文件位置 | `.codebuddy/agents/{分类}/*.md` | `.codebuddy/skills/{name}/SKILL.md` |
+### 2.1 按阶段：用什么、怎么用、产出什么
 
----
+| 阶段 | 用什么 | 怎么用 | 产出 / 效果 |
+|------|--------|--------|-------------|
+| **需求澄清** | Skill：`brainstorming`<br>可选 Agent：`@product-manager` | 新需求时说「先澄清，不要写代码」，或 `/brainstorming`；用 `@网站开发` 启动项目时也会自动走这一步 | AI **逐条追问**（谁在用、痛点、边界、验收标准），给出 **2～3 种方案对比**；**确认前不写代码** |
+| **方案设计** | Skill：`brainstorming`（续） | 回答追问、选定方案后，回复「确认」或修改意见 | 写入 `spec/changes/{变更名}/design.md`：页面结构、数据实体、API 概要、验收场景——**产品的评审重点** |
+| **实施计划** | Skill：`writing-plans` | 设计文档确认后自动或手动触发 | `spec/changes/{变更名}/tasks.md`：拆好的开发任务清单 |
+| **编码开发** | Agent：`@网站开发`<br>Skill：`executing-plans`、`test-driven-development` 等 | 说「设计已确认，请按计划开发」 | 前后端 + 数据库一体实现；UI / UX 相关 Skill 由 Agent 按阶段自动加载 |
+| **审查验收** | Skill：`verification-before-completion` 等<br>可选 Agent：`@testing-reality-checker` | 开发完成后说「对照验收场景检查」 | **必须有测试 / 构建证据**才能声称完成；可对照 PRD 查实现是否跑偏 |
 
-## 三、网站开发智能体使用指南
+**一条链路**：`brainstorming` → 产品确认 design.md → `writing-plans` → `@网站开发` 开发 → 验收。
 
-### 3.1 它解决什么问题
+**按需选用的专家 Agent**（不必每次都用）：`@product-trend-researcher`（竞品调研）、`@product-feedback-synthesizer`（用户反馈）、`@design-ux-architect`（信息架构）。完整清单见 `.codebuddy/agents/README.md`。
 
-**`@网站开发`** 负责从需求到**可本地运行**的 Web 应用完整交付，包括：
-
-- 信息架构与页面结构
-- UI/UX 视觉方向
-- 前端页面（Next.js + shadcn/ui）
-- 后端 API（Route Handler）
-- 数据库 Schema（本地 PostgreSQL + Drizzle ORM）
-
-**默认技术栈**：Next.js 16 + React 19 + TypeScript + shadcn/ui + Tailwind CSS 4 + 本地 PostgreSQL + Drizzle ORM + pnpm
-
-### 3.2 谁可以怎么用
-
-| 角色 | 做什么 | 不需要做什么 |
-|------|--------|--------------|
-| 产品经理 | 写清需求、功能清单、验收场景；评审设计摘要 | 写代码、配数据库 |
-| 开发 | 调用 `@网站开发`、评审技术方案、联调环境 | 从零手写全部 boilerplate |
-| 业务方 | 中期看原型、按验收场景签字 | 参与技术选型 |
-
-### 3.3 标准使用流程
-
-```
-① 启动 Agent          ② 需求澄清           ③ 确认设计
-   @网站开发      →    brainstorming    →   评审设计文档
-        ↓                    ↓                    ↓
-⑥ 验收交付          ⑤ 全栈实现           ④ 实施计划
-   按场景走查     ←    前后端+数据库   ←   writing-plans
-```
-
-| 步骤 | 发生什么 | 你需要做什么 |
-|------|----------|--------------|
-| Step 1 启动 | 对话中输入 `@网站开发` + 需求模板 | 按模板填写需求 |
-| Step 2 澄清 | Agent 追问，触发 `brainstorming` | 逐条回答，**此阶段不写代码** |
-| Step 3 设计 | 产出变更目录 `spec/changes/{change-name}/`（含 design.md） | 阅读摘要，回复「确认」或修改意见 |
-| Step 4 计划 | Agent 拆任务，触发 `writing-plans` | 确认 MVP 范围与优先级 |
-| Step 5 实现 | 数据库 → API → 前端，加载各阶段 Skill | 中期看原型，及时纠偏 |
-| Step 6 交付 | `pnpm build` 验证 + 验收场景走查 | 按清单签字或列修改项 |
-
-### 3.4 需求输入模板（复制即用）
-
-**新建网站**
+### 2.2 怎么启动
 
 ```text
 @网站开发
 
 【项目名称】任务管理系统
-【一句话】团队负责人管理成员任务与进度
 【目标用户】团队负责人、成员
-【核心功能】
-1. 任务 CRUD（标题、负责人、状态、截止日期）
-2. 看板视图（待办 / 进行中 / 已完成）
-3. 首页统计（任务总数、完成率）
-【MVP】第一版只做 CRUD + 看板 + 统计，不做登录权限
+【核心功能】任务 CRUD、看板视图、首页统计
+【MVP】第一版不做登录权限
 【验收场景】
-1. 打开首页能看到统计数据
-2. 能新增、编辑、删除一条任务
-3. 看板切换状态后数据正确
-4. 刷新页面数据仍在
+1. 首页能看到统计数据
+2. 能新增、编辑、删除任务
+3. 刷新后数据仍在
 
-请使用本地 PostgreSQL，先输出设计文档，我确认后再开发。
+请先输出设计文档，我确认后再开发。
 ```
 
-**在已有项目上迭代**
+已有项目加功能时，说明改什么、影响哪些页面，同样加上「先更新设计文档，确认后再改代码」。更完整的输入模板见 `spec/ME2AI/templates/新建网站.md`。
 
-```text
-@网站开发
+### 2.3 产品经理怎么配合
 
-在现有任务管理系统上增加「导出 CSV」功能。
-影响页面：任务列表页
-影响数据：无新表，读取现有 tasks 表
-请先更新设计文档，确认后再改代码。
-```
-
-### 3.5 本地环境准备（开发侧）
-
-网站开发 Agent 默认使用**本地 PostgreSQL**，开发前需确保：
-
-```bash
-createdb task_manager
-# .env 中配置
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/task_manager
-
-pnpm install && pnpm db:push && pnpm dev
-```
-
-产品经理无需操作以上步骤，但验收前需确认开发环境可访问演示地址。
-
-### 3.6 Agent 会自动调用的 Skill 地图
-
-| 阶段 | Skill | 作用 |
-|------|-------|------|
-| 需求澄清 | `brainstorming` | 追问、方案对比、设计规格 |
-| 实施计划 | `writing-plans` | 任务拆分、文件清单 |
-| 分步开发 | `executing-plans` | 按计划逐步实施 |
-| **UI/UX 设计** | **`ui-ux-pro-max`** | 设计系统、配色、字体、布局规范 |
-| **视觉实现** | **`frontend-design`** | 高品质界面，避免 AI 千篇一律审美 |
-| **规范审查** | **`web-design-guidelines`** | 无障碍、间距、交互一致性 |
-| **前端编码** | **`vercel-react-best-practices`** | Next.js / React 性能最佳实践 |
-| 写功能 / 修 Bug | `test-driven-development` | 先测后写 |
-| 交付前 | `verification-before-completion` | 跑命令、附证据 |
-
----
-
-## 四、网站开发相关 Skill 详解
+写清需求与验收场景 → 评审设计文档 → 中期看原型 → 按场景验收。Agent 负责串联各阶段 Skill，产品主要在**确认节点**回复「确认」或修改意见——不需要懂代码，也不需要单独调用各个网站 Skill。
 
 以下 Skill 已安装至 `.codebuddy/skills/`。Agent 会按阶段自动加载；你也可以**手动调用**（输入 `/skill-name`）加强某一环节。
 
-### 4.1 ui-ux-pro-max — UI/UX 设计 intelligence
+### 2.4 ui-ux-pro-max — UI/UX 设计 intelligence
 
 **是什么**
 
@@ -178,446 +93,328 @@ pnpm install && pnpm db:push && pnpm dev
 
 **产品经理关注点**：风格是否符合品牌与用户习惯；菜单层级是否过深；主流程是否 3～5 步内完成。
 
----
-
-### 4.2 frontend-design — 高品质前端视觉
-
-**是什么**
-
-Anthropic 官方 Skill，强调**有明确美学主张**的前端实现，主动规避 generic AI 审美（烂大街紫渐变、无脑 Inter 字体、无层次白底等）。
-
-**什么时候用**
-
-- 具体页面 / 组件的视觉实现
-- Landing Page、Dashboard、表单、卡片等需要「有设计感」的界面
-- 改版、美化现有 UI
-
-**怎么调用**
-
-```text
-/frontend-design
-
-实现任务看板页面：三列 Kanban，深色背景，强调色用青绿色，
-卡片带 subtle 阴影和 hover 动效，中文界面。
-```
-
-**与 ui-ux-pro-max 的分工**
-
-| Skill | 侧重 |
-|-------|------|
-| `ui-ux-pro-max` | 设计**决策**：风格、配色、字体、UX 规范、信息架构 |
-| `frontend-design` | 设计**落地**：把方向变成高质量 React / Tailwind 代码 |
-
-推荐顺序：**ui-ux-pro-max 定方向 → frontend-design 写页面**。
+#### 技能网站：
+https://www.skills.sh/
 
 ---
 
-### 4.3 web-design-guidelines — 界面规范审查
+## 四、本地环境与 Git 仓库配置
 
-**是什么**
+用 `@网站开发` 交付 Web 应用前，开发侧需先把**本地运行环境**和 **Git 仓库**配好。产品经理不必亲自装依赖，但应知道「什么就绪了才能开始开发、代码和文档放在哪、哪些东西不能提交」——便于对齐进度和验收。
 
-Vercel 维护的 Web 界面规范审查 Skill，检查无障碍、间距、交互、最佳实践合规性。
+### 4.1 本地开发环境
 
-**什么时候用**
+**默认技术栈**（见 `spec/project.md`）：Next.js 16 + React 19 + TypeScript + shadcn/ui + Drizzle ORM + **本地 PostgreSQL**，包管理 **pnpm only**。
 
-- 页面开发完成后做 UX / 无障碍审查
-- 上线前质量把关
-- 觉得「哪里不对但说不清」时
+| 依赖 | 用途 | 建议版本 |
+|------|------|----------|
+| Node.js | 运行 Next.js | 20 LTS 及以上 |
+| pnpm | 安装依赖、跑脚本 | 9.x 及以上 |
+| PostgreSQL | 业务数据存储 | 14 及以上，默认 `localhost:5432` |
+| AICoding | 智能体开发会话 | 打开项目根目录 |
 
-**怎么调用**
-
-```text
-/web-design-guidelines
-
-请审查任务列表和看板页面，检查无障碍和 UX 规范。
-```
-
-**产出**：按 `file:line` 格式列出问题（对比度不足、缺少 focus 态、间距不一致等）。
-
-**产品经理关注点**：是否影响主流程可用性；错误提示是否清晰；移动端是否正常。
-
----
-
-### 4.4 vercel-react-best-practices — React / Next.js 性能
-
-**是什么**
-
-Vercel 工程团队维护的 70 条 React / Next.js 性能规则，涵盖 Server Component、数据获取、bundle 优化等 8 大类。
-
-**什么时候用**
-
-- 写新页面、新组件时（Agent 开发阶段自动加载）
-- 页面加载慢、包体积大时排查
-- 技术 Code Review 阶段
-
-**怎么调用**
-
-```text
-/vercel-react-best-practices
-
-审查任务管理模块的前端代码是否符合 Next.js App Router 最佳实践。
-```
-
-**产品经理需要知道吗？** 一般不需要。了解即可：这个 Skill 保证技术实现「又快又稳」，不影响你验收业务功能。
-
----
-
-### 4.5 Superpowers 工作流 Skill（已有，无需额外安装）
-
-| Skill | 一句话 | 手动调用 |
-|-------|--------|----------|
-| `brainstorming` | 先设计后编码，禁止直接开写 | `/brainstorming` |
-| `writing-plans` | 设计 → 可执行计划 | `/writing-plans` |
-| `executing-plans` | 按计划分步实施 | `/executing-plans` |
-| `test-driven-development` | 先写测试再写实现 | `/test-driven-development` |
-| `verification-before-completion` | 有证据才能说「完成」 | `/verification-before-completion` |
-
-完整清单见 `.codebuddy/skills/README.md`。
-
----
-
-### 4.6 Skill 安装方式（研发参考）
-
-网站开发相关 Skill 通过 `npx skills add` 安装至 `.codebuddy/skills/`（本项目已安装）：
+**首次启动（研发执行）**
 
 ```bash
-npx skills add https://github.com/vercel-labs/agent-skills \
-  --skill vercel-react-best-practices --skill web-design-guidelines \
-  --agent codebuddy -y --copy
+# 1. 进入项目根目录
+cd {project_root}
 
-npx skills add https://github.com/nextlevelbuilder/ui-ux-pro-max-skill \
-  --skill ui-ux-pro-max --agent codebuddy -y --copy
+# 2. 配置环境变量
+cp .env.example .env
+# 编辑 .env，把 {project_slug} 换成实际项目库名
 
-npx skills add https://github.com/anthropics/skills \
-  --skill frontend-design --agent codebuddy -y --copy
+# 3. 创建本地数据库（库名与 .env 中 DATABASE_URL 一致）
+createdb {project_slug}
+
+# 4. 安装依赖并同步 Schema
+pnpm install
+pnpm db:push
+
+# 5. 启动开发服务（默认 http://localhost:3000）
+pnpm dev
 ```
 
-版本锁定记录在项目根目录 `skills-lock.json`。
+**常用命令**
 
----
-
-## 五、三个系统的共性模式
-
-尽管业务不同，三个系统都遵循同一套 **AICoding 项目开发模式**：
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  产品经理：问题定义 + 边界 + 验收标准 + 业务语义对齐          │
-└───────────────────────────┬─────────────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  AICoding + Superpowers：brainstorming → writing-plans     │
-│  → executing-plans → TDD → review → verification           │
-└───────────────────────────┬─────────────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  交付物：可运行系统 + API 文档 + 设计文档 + 测试证据          │
-└─────────────────────────────────────────────────────────────┘
-```
-
-| 共性 | 说明 |
+| 命令 | 作用 |
 |------|------|
-| 先设计后编码 | 再「简单」的需求也走 brainstorming，避免 AI 直接开写返工 |
-| 项目级记忆 | `CODEBUDDY.md` 记录技术栈、命名规范、架构约定，全项目共享 |
-| 专家 Agent 分工 | 产品、架构、前端、后端、测试等 Agent 按场景调用 |
-| 工作流 Skill | Superpowers 保证 TDD、调试、审查、验证有章可循 |
-| 人机协作节点 | 方案确认、发布审批、验收测试——产品必须在环 |
+| `pnpm dev` | 本地开发热更新 |
+| `pnpm build` | 生产构建（交付前必跑） |
+| `pnpm lint` | 代码规范检查 |
+| `pnpm db:push` | 按 Schema 同步数据库结构 |
+| `pnpm db:seed` | 写入种子数据（若有） |
 
----
+**交付验证**（Agent 声称完成前应能跑通）：
 
-## 六、产品经理在 AICoding 项目中的四个角色
-
-### 6.1 问题定义者（最重要）
-
-不要上来就说「做一个 XXX 功能」，而要说：
-
-- **谁**在用？什么场景？
-- **现在**怎么做的？痛点是什么？
-- **成功**长什么样？怎么度量？
-- **不能**做什么？合规 / 性能 / 安全边界？
-
-**推荐话术（直接对 AICoding 说）**
-
-```text
-我要做一个 [系统名称]。
-目标用户是 [角色]，他们在 [场景] 下需要 [能力]。
-当前痛点是 [具体问题]。
-成功标准是 [可量化指标]。
-约束条件：[技术栈 / 合规 / 时间 / 不能做的范围]。
-请先不要写代码，帮我做需求澄清和方案对比。
+```bash
+pnpm install && pnpm db:push && pnpm build && pnpm lint
 ```
 
-这会触发 `brainstorming` 技能，AI 会逐一追问，正好补齐 PRD 所需信息。
+### 4.2 环境变量
 
-做网站类项目时，可直接改用 **第三节的需求模板**，并加上 `@网站开发`。
+项目根目录提供 `.env.example` 作为模板，**实际值写在 `.env`**，且 `.env` **不得提交到 Git**。
 
----
-
-### 6.2 方案评审者
-
-AICoding 产出设计文档后，产品经理重点评审：
-
-| 评审项 | 关注点 |
-|--------|--------|
-| 信息架构 | 菜单、实体、关系是否符合业务语言 |
-| 用户路径 | 主流程是否 3～5 步内完成 |
-| 权限模型 | 谁能看、谁能改、谁能发布 |
-| 边界情况 | 空数据、失败、并发、回滚 |
-| MVP 范围 | 第一版做什么、不做什么 |
-| 视觉方向 | ui-ux-pro-max 输出的风格是否符合预期（如有） |
-
-**你不需要懂代码**，但需要问：「业务方能不能看懂、用起来顺不顺、出了错怎么办」。
-
----
-
-### 6.3 验收负责人
-
-AICoding 完成开发后会走 `verification-before-completion`——没有跑过测试证据，不能声称「做完了」。
-
-产品经理的验收清单：
-
-- [ ] 主流程走通（附操作步骤）
-- [ ] 3～5 个真实业务场景可复现
-- [ ] 权限与角色行为符合预期
-- [ ] 异常提示是「人话」，不是堆栈信息
-- [ ] 核心 API / 页面有文档或说明
-- [ ] 列表 / 表单 / 空态 / 加载态 / 错误态体验正常
-
----
-
-### 6.4 Agent 配置参与者（进阶）
-
-在智能体协作类项目中，产品经理可以直接参与 `.codebuddy/agents/product/` 下的角色定义，例如：
-
-- `product-manager`：PRD、路线图、优先级
-- `product-trend-researcher`：竞品与市场调研
-- `product-feedback-synthesizer`：用户反馈分析
-
-**含义**：把「产品经理怎么思考」写成 Agent 配置，让平台里的 AI 角色与真实产品流程一致。
-
----
-
-## 七、AICoding 项目标准配置（建议）
-
-每个新项目建议在根目录建立规范驱动 + `.codebuddy/` 结构：
-
-```
-项目根目录/
-├── AGENTS.md                 # 项目概述、API 表、表结构摘要
-├── spec/                     # 规范驱动核心
-│   ├── specs/                # 真理源：当前系统能力
-│   ├── changes/              # 需求迭代（proposal / design / tasks）
-│   ├── ME2AI/                # 人类 → AI 输入
-│   ├── AI2AI/                # AI 中间产物（草稿，默认不入库）
-│   └── project.md            # 技术栈与业务上下文
-├── docs/                     # 沉淀文档
-│   ├── guides/               # 培训与实践（含本文档）
-│   └── architecture/         # ADR
-├── CODEBUDDY.md              # Skill 清单与协作规则
-├── skills-lock.json          # 外部 Skill 版本锁（可选）
-└── .codebuddy/
-    ├── skills/               # Superpowers + 网站开发 Skill
-    ├── agents/               # 专家角色（含 engineering/网站开发.md）
-    │   ├── product/
-    │   ├── design/
-    │   ├── engineering/
-    │   └── testing/
-    └── rules/                # 团队编码与文档规范（可选）
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/{project_slug}
+NODE_ENV=development
+PORT=3000
+# SKIP_DB_PUSH=1   # 仅在不希望 dev 启动时自动 push Schema 时使用
 ```
 
-| 目录 | 产品经理需要知道什么 |
-|------|----------------------|
-| `spec/changes/` | 每次需求迭代的 proposal、design、tasks |
-| `spec/specs/` | 已确认的系统行为真理源 |
-| `spec/ME2AI/` | 人类原始需求、评审反馈、输入模板 |
-| `spec/AI2AI/` | AI 草稿，确认前可忽略 |
-| `docs/` | 培训材料、ADR、用户说明 |
-| `CODEBUDDY.md` | 项目的「长期记忆」，应包含业务背景、用户角色、术语表 |
-| `.codebuddy/skills/` | AI 的工作方法；网站开发含 ui-ux-pro-max 等 4 个 Skill |
-| `.codebuddy/agents/` | 可调用的专家角色；网站类项目用 `@网站开发` |
+新项目接入时，在 `spec/project.md` 中同步更新 `{project_slug}`、业务背景和技术约定，便于 Agent 和团队成员对齐上下文。
 
----
+### 4.3 Git 仓库配置
 
-## 八、用 AICoding 做新系统的标准流程
+#### 初始化或克隆
 
-### Step 1：启动会话，对齐上下文
+**新建项目**
 
-```text
-请先阅读 CODEBUDDY.md 和项目现有结构。
-我要启动一个新系统：[系统名称]。
-请先理解项目背景，再开始需求澄清。
+```bash
+git init
+git add .
+git commit -m "chore: 初始化项目脚手架"
+git branch -M main
+git remote add origin <仓库地址>
+git push -u origin main
 ```
 
-网站类项目可直接：`@网站开发` + 第三节需求模板。
+**已有远程仓库**
 
-### Step 2：需求澄清（brainstorming）
+```bash
+git clone <仓库地址>
+cd {project_root}
+cp .env.example .env
+# 按 4.1 完成本地环境配置
+```
 
-- AI 会逐条提问，产品经理逐条回答
-- 产出：设计规格写入 `spec/changes/{change-name}/`（探索草稿可先放 `spec/AI2AI/drafts/`）
-- **产品动作**：确认方案，明确「做 / 不做」
+#### 远程平台（国内团队常见）
 
-### Step 3：实施计划（writing-plans）
+| 平台 | 远程地址示例 |
+|------|--------------|
+| Gitee | `https://gitee.com/<org>/<repo>.git` |
+| Coding.net | `https://e.coding.net/<team>/<project>/<repo>.git` |
+| 极狐 GitLab | `https://jihulab.com/<group>/<repo>.git` |
+| GitHub | `https://github.com/<org>/<repo>.git` |
 
-- AI 把设计拆成可执行任务：文件、接口、页面、测试
-- **产品动作**：确认优先级，砍 MVP 范围
+SSH 与凭据、CI 接入等平台差异，研发可参考 Skill `chinese-git-workflow`（输入 `/chinese-git-workflow`）。
 
-### Step 4：开发执行（executing-plans + TDD + 网站 Skill）
+#### 分支与协作约定
 
-- Agent 按阶段加载 ui-ux-pro-max、frontend-design、vercel-react-best-practices 等
-- **产品动作**：中期看原型，及时纠偏，避免做完才发现理解错了
+| 约定 | 说明 |
+|------|------|
+| 主分支 | `main` 保持可构建、可演示 |
+| 功能分支 | `feature/{变更名}` 或 `spec/{变更名}`，对应 `spec/changes/{变更名}/` |
+| 提交粒度 | 一个逻辑变更一次提交；message 建议 Conventional Commits（如 `feat:`、`fix:`、`docs:`） |
+| 合并前 | `pnpm build` 通过；设计文档与代码变更对应 |
 
-### Step 5：审查与验证
+**建议入库**
 
-- web-design-guidelines 审查 UI + 代码审查 + 测试证据 + 产品验收
-- **产品动作**：按验收清单签字，或列出修改项
+- `spec/specs/`、`spec/changes/`、`spec/ME2AI/` — 规范与需求
+- `docs/` — 培训、ADR、用户说明
+- `src/` — 应用代码
+- `.codebuddy/` — Agent 与 Skill 配置
+- `CODEBUDDY.md`、`AGENTS.md`、`spec/project.md` — 项目记忆
 
-### Step 6：收尾
+**默认不入库**
 
-- 合并、部署、文档归档
-- **产品动作**：更新用户说明、培训材料、上线公告
+- `.env` — 含数据库密码等敏感信息
+- `spec/AI2AI/` — AI 草稿（确认后再迁入正式路径）
+- `node_modules/`、`.next/` — 构建产物与依赖缓存
+
+### 4.4 产品经理需要知道的
+
+| 事项 | 产品经理 | 研发 + AICoding |
+|------|----------|-----------------|
+| 本地能否跑起来 | 验收时确认能演示 | 负责安装、配置、排查 |
+| 需求与评审材料放哪 | 写入 `spec/ME2AI/`、`spec/changes/` | 协助整理进规范目录 |
+| Git 分支对应哪次需求 | 知道当前迭代对应的 change 名 | 建分支、提交、合并 |
+| 环境变量与密钥 | 不接触 `.env` | 本地配置，生产由运维/研发管理 |
+| 交付是否可信 | 要求有 build / 演示证据 | 跑验证命令后再声称完成 |
+
+环境就绪、仓库结构清晰后，即可按第二节启动 `@网站开发`，进入需求澄清与开发流程。
 
 ---
 
-## 九、三类系统的启动模板（可直接复用）
+## 五、当前项目 spec 目录规范
 
-### 模板 A：配置管理平台（参考：大模型场景管理）
+本项目采用**规范驱动开发**：`spec/` 目录是需求、设计与系统能力的「单一事实来源」。代码在 `src/`，但**做什么、做到什么程度、怎么验收**——以 `spec/` 为准。
+
+详细规则见 `spec/AGENTS.md`；本节面向产品经理，说明各目录放什么、一次迭代怎么走、你在哪些节点需要确认。
+
+### 5.1 目录总览
+
+```
+spec/
+├── AGENTS.md              # spec 工作流说明（AI 与人类共用）
+├── project.md             # 项目上下文：技术栈、环境变量、术语表
+├── config.yaml            # 规范驱动配置与文档生成规则
+├── specs/                 # ✅ 真理源：当前已确认的系统能力
+├── changes/               # 🔄 进行中的需求迭代
+│   ├── _template/         # 新建变更时复制此目录
+│   └── archive/           # 已完成变更（只读归档）
+├── ME2AI/                 # 👤 人类 → AI 原始输入
+│   ├── requirements/      # 需求描述、验收场景
+│   ├── context/           # 业务背景、术语、约束
+│   ├── feedback/          # 评审意见、修改指示
+│   └── templates/         # 可复用输入模板
+└── AI2AI/                 # 🤖 AI 中间产物（草稿，默认不入库）
+    ├── drafts/            # brainstorming 草稿、方案对比
+    ├── plans/             # 未确认的实施计划
+    └── scratch/           # 会话临时文件，用完即删
+```
+
+| 路径 | 是否真理源 | 产品经理关注点 |
+|------|-----------|----------------|
+| `spec/specs/` | ✅ 是 | 查「系统现在能做什么」 |
+| `spec/changes/` | 提案工作区 | 评审 proposal / design / tasks |
+| `spec/ME2AI/` | ❌ 否 | 写原始需求、反馈、背景材料 |
+| `spec/AI2AI/` | ❌ 否 | 确认前可忽略；确认后应迁入 `changes/` |
+| `spec/project.md` | 项目上下文 | 业务背景、用户角色、术语表 |
+
+### 5.2 各目录职责
+
+#### `spec/specs/` — 已确认的系统能力
+
+描述**当前已上线 / 已验收**的能力，按业务域分子目录，每域含 `spec.md`（需求与 WHEN/THEN 场景），可选 `design.md`（该域技术模式）。
+
+**功能开发时不直接改这里**，应通过 `spec/changes/` 提交 Delta，归档时再合并进来。
+
+#### `spec/changes/` — 进行中的需求迭代
+
+每次需求（新建系统或功能迭代）在此建独立目录，可复制 `spec/changes/_template/`：
+
+| 文件 | 内容 | 产品动作 |
+|------|------|----------|
+| `proposal.md` | 为什么做、做什么、不做什么、影响面 | 确认 Goal / Scope / Out of scope |
+| `design.md` | 信息架构、数据模型、API、页面、MVP、验收场景 | **重点评审**，确认后再开发 |
+| `tasks.md` | 可勾选实施清单 | 确认优先级与 MVP 范围 |
+| `specs/{domain}/spec.md` | Delta 规格（ADDED / MODIFIED / REMOVED） | 核对需求变更是否完整 |
+
+探索性草稿可先放 `spec/AI2AI/drafts/`，双方确认后迁入 `spec/changes/{change-name}/`。
+
+#### `spec/ME2AI/` — 人类原始输入
+
+| 子目录 | 放什么 | 命名建议 |
+|--------|--------|----------|
+| `requirements/` | 需求描述、功能清单、验收场景 | `YYYY-MM-DD-{功能名}-需求.md` |
+| `context/` | 业务背景、术语表、约束、参考资料 | 按主题，如 `术语表.md` |
+| `feedback/` | 评审意见、修改指示、确认/驳回 | `YYYY-MM-DD-{功能名}-反馈-v{n}.md` |
+| `templates/` | 可复用模板 | 如 `新建网站.md`、`功能迭代.md` |
+
+模板用法：复制 `spec/ME2AI/templates/新建网站.md` 到 `requirements/`，填好后发给 `@网站开发`。
+
+#### `spec/AI2AI/` — AI 草稿（默认不入库）
+
+brainstorming、未确认方案、临时分析暂存于此。**不是规格真理源**；确认后必须迁入 `spec/changes/` 或 `docs/`，否则团队无法对齐。
+
+### 5.3 一次需求迭代怎么走
+
+```
+ME2AI/requirements/          人类写原始需求
+        │
+        ▼
+changes/{name}/proposal.md   AI 结构化提案 → 产品确认
+        │
+        ▼
+changes/{name}/design.md     设计文档 → 产品评审（确认前不写代码）
+        │
+        ▼
+changes/{name}/tasks.md      实施计划 → 产品确认 MVP 范围
+        │
+        ▼
+@网站开发 按 tasks 开发       中期原型评审
+        │
+        ▼
+验收通过 → 归档
+  · specs/ 合并 Delta
+  · changes/{name}/ → changes/archive/YYYY-MM-DD-{name}/
+  · 更新根目录 AGENTS.md（API 表、表结构摘要）
+```
+
+**归档后**：`spec/specs/` 反映系统真实能力；`spec/changes/` 只保留进行中的迭代。
+
+### 5.4 Delta 规格格式（了解即可）
+
+变更对系统行为的影响，写在 `changes/{name}/specs/{domain}/spec.md`，用以下节标题区分：
+
+```markdown
+## ADDED Requirements
+### Requirement: 用户可导出任务 CSV
+系统 SHALL 在任务列表页提供导出按钮……
+
+#### Scenario: 导出全部任务
+- **WHEN** 用户点击「导出 CSV」
+- **THEN** 浏览器下载包含当前列表全部字段的文件
+
+## MODIFIED Requirements
+## REMOVED Requirements
+```
+
+产品不必写 Delta，但评审时应确认 ADDED / MODIFIED / REMOVED 与 `design.md`、验收场景一致。
+
+### 5.5 硬性规则（产品也需知晓）
+
+1. **设计未确认，不写业务代码** — 未确认 `design.md` 前，禁止写 `src/app` 业务页和 `schema.ts` 业务表
+2. **不直接改 `spec/specs/` 做新功能** — 必须走 `spec/changes/` + Delta
+3. **`ME2AI` 是输入，`changes` 是提案，`specs` 是结论** — 确认前的 AI 草稿在 `AI2AI/`，确认后的正式规格在 `changes/` 或 `specs/`
+4. **未 build 通过不得声称交付完成** — 验收时要求研发提供构建与演示证据
+
+---
+
+## 六、需求描述与启动验证
+
+核心两件事：**需求写清楚**，**按场景验收**。模板见 `spec/ME2AI/templates/`（新建网站 / 功能迭代）。
+
+### 6.1 需求怎么写
+
+写清五件事：**用户、核心功能、MVP 边界、验收场景、约束**。验收场景须能逐步操作、可判断 pass/fail，避免「好用一点」这类模糊表述。
 
 ```text
 @网站开发
-我要做一个 [XX] 配置管理平台。
-核心实体是 [实体名]，需要支持 CRUD、版本管理、发布/回滚、权限隔离。
-用户角色：[管理员 / 业务配置员 / 只读查看者]。
-第一版只做 [MVP 范围]，不做 [明确排除项]。
-请先输出设计文档，确认后再开发。使用本地 PostgreSQL。
+【项目名称】任务管理系统
+【目标用户】团队负责人、成员
+【核心功能】任务 CRUD、看板、首页统计
+【MVP】第一版不做登录
+【验收场景】
+1. 首页有三项统计
+2. 能增删改任务
+3. 刷新后数据仍在
+请先输出 design.md，我确认后再开发。
 ```
 
-### 模板 B：分析洞察平台（参考：代码智能解析）
+需求建议落盘：`spec/ME2AI/requirements/YYYY-MM-DD-{功能名}-需求.md`。
 
-```text
-@网站开发
-我要做一个 [XX] 智能分析平台。
-输入是 [数据源]，输出是 [结构化结果 + 自然语言问答]。
-目标用户是 [角色]，他们需要通过它 [完成什么决策]。
-MVP 先支持 [一种数据源 / 一种输出格式]。
-请先输出设计文档，确认后再开发。使用本地 PostgreSQL。
-```
+### 6.2 怎么启动
 
-### 模板 C：协作编排平台（参考：智能体人机协作平台）
+1. 会话开头让 AI 读 `CODEBUDDY.md`、`spec/project.md`，并说「先澄清，不要写代码」
+2. `@网站开发` + 粘贴需求 → 回答追问 → 确认写入 `spec/changes/{变更名}/`
+3. 评审 `design.md`（MVP、验收场景、页面与数据是否对）→ 回复「确认，请按计划开发」
 
-```text
-@网站开发
-我要做一个 [XX] 人机协作平台。
-支持 [N] 种 Agent 角色，任务可 [串行/并行] 执行。
-必须在 [节点] 插入人工审批。
-第一版先跑通一条完整业务流：[具体流程描述]。
-请先输出设计文档，确认后再开发。使用本地 PostgreSQL。
-```
+### 6.3 怎么验证
+
+- **演示**：`pnpm dev`，按 `design.md` 验收场景逐条勾选
+- **证据**：交付前须 `pnpm build && pnpm lint` 通过，不能只听「做完了」
+- **收尾**：验收通过后归档到 `spec/specs/`，更新 `AGENTS.md`
+
+范围变更、口头改需求 → 先更新 `spec/changes/` 或 `spec/ME2AI/feedback/`，再改代码。
 
 ---
 
-## 十、产品经理 vs 开发：分工边界
+## 七、开发遇到的坑与规避
 
-| 事项 | 产品经理 | 全栈开发 + AICoding |
-|------|----------|---------------------|
-| 为什么要做 | ✅ 主导 | 参与澄清 |
-| 做什么 / 不做什么 | ✅ 主导 | 评估可行性 |
-| 用户流程与信息架构 | ✅ 主导 | 实现与优化 |
-| 视觉风格方向 | ✅ 评审确认 | 调用 ui-ux-pro-max 等实现 |
-| 技术选型 | 参与决策 | ✅ 主导 |
-| 数据模型与 API | 评审业务语义 | ✅ 主导 |
-| 编码实现 | — | ✅ 主导 |
-| Agent / Skill 配置 | 参与产品类 Agent | ✅ 主导 |
-| 测试与上线 | ✅ 验收 | ✅ 执行 |
-| 文档与培训 | ✅ 用户向文档 | ✅ 技术文档 |
 
-**避免的两个极端**
-
-1. **产品不管，只说「帮我做一个系统」** → AI 会猜需求，返工成本高  
-2. **产品过度介入实现细节** → 限制 AI 和开发发挥，效率反而下降  
-
----
-
-## 十一、常见问题
-
-**Q1：AICoding 会不会取代开发？**  
-不会。AICoding 放大的是开发效率；**问题定义、取舍、验收、跨部门对齐**仍然需要人和产品经理。
-
-**Q2：产品需要会写 prompt 吗？**  
-需要会「说清楚问题」，不需要会调模型参数。按本文模板表达即可；复杂 Prompt 由 Agent 配置承担。
-
-**Q3：@网站开发 和 /ui-ux-pro-max 有什么区别？**  
-`@网站开发` 是委派一个**全栈专家**跑完整流程（需求→设计→前后端→数据库）。`/ui-ux-pro-max` 是加载一个**设计规范 Skill**，只做 UI/UX 相关决策。通常先用 `@网站开发` 启动项目，它在设计阶段会自动加载 ui-ux-pro-max；你也可以单独 `/ui-ux-pro-max` 做风格评审或改版。
-
-**Q4：Skill 会自动触发吗？**  
-Superpowers 工作流 Skill（如 brainstorming）会在匹配场景时自动加载。网站开发 Skill（ui-ux-pro-max 等）由 `@网站开发` Agent 按阶段调用；也可手动 `/skill-name` 强制加载。
-
-**Q5：需求变更怎么办？**  
-在 AICoding 里明确说「范围变更：原 X 不做，改为 Y」，让它更新设计文档和计划，不要口头改一半、代码改一半。
-
-**Q6：怎么判断 AICoding 产出是否可信？**  
-看证据：测试是否跑过、演示是否可复现、文档是否与代码一致。没有证据的「已完成」不可验收。
-
-**Q7：三个系统之间有什么可复用能力？**
-
-| 复用层 | 内容 |
+| 常见坑 | 规避 |
 |--------|------|
-| 基础平台 | 用户 / 角色 / 权限 / 审计日志 |
-| 配置引擎 | 版本管理、发布、回滚（场景管理 → 其他配置类系统） |
-| 解析引擎 | 索引、检索、问答（代码解析 → 文档/知识库类系统） |
-| 编排引擎 | Agent 调度、人工卡点（协作平台 → 其他流程类系统） |
-| 网站开发 Agent | `@网站开发` + 4 个 Skill，快速交付 Web 管理台 / 业务平台 |
+| 一句话需求，AI 猜功能 | 用模板写清 MVP + 验收场景；先澄清再编码 |
+| 跳过 design 直接写代码 | `design.md` 确认后再开发 |
+| 需求只留在聊天里 | 落 `spec/ME2AI/`，确认进 `spec/changes/` |
+| 口头改需求 | 变更写进 spec，再让 AI 改 |
+| 相信「完成了」 | 要 build 输出 + 场景逐条验收 |
+| 演示即验收 | 按书面场景勾选，含刷新持久化、空态/错误态 |
+| 会话换人就失忆 | 先读 `CODEBUDDY.md`；一次迭代一个 change |
+
+**红线**：无 design 确认就写业务代码 · 验收场景无法手动执行 · 无 build 证据 · 需求变更未更新 spec。
+
+规范驱动 = 需求进 ME2AI → 设计进 changes → 证据验收 → 归档进 specs。
 
 ---
-
-## 十二、给产品经理的行动建议
-
-### 本周就能做的
-
-1. 读一遍 `CODEBUDDY.md`，了解当前项目约定  
-2. 用 **第三节需求模板**，在 AICoding 里试一次 `@网站开发`（先只要设计文档，不写代码）  
-3. 手动试一次 `/ui-ux-pro-max`，感受设计 Skill 的输出  
-4. 参加一次开发会话的中期原型评审，而不是等全部做完  
-
-### 下一个项目应前置的
-
-1. 与开发共建 `CODEBUDDY.md` 中的**业务术语表**和**用户角色说明**  
-2. 在 PRD 中增加「验收场景」章节（3～5 条，可执行）  
-3. 明确 MVP 边界，写清「第一版不做什么」  
-
-### 长期可参与的
-
-1. 共同维护 `.codebuddy/agents/product/` 下的产品 Agent  
-2. 把反复出现的评审标准沉淀为 `.codebuddy/rules/`  
-3. 推动团队统一 Superpowers 工作流，减少「AI 想到哪写到哪」  
-
----
-
-## 十三、总结
-
-| 结论 | 说明 |
-|------|------|
-| AICoding 是工具，不是魔法 | 输入质量决定输出质量 |
-| 产品经理的核心价值不变 | 定义问题、对齐预期、验收结果 |
-| 三个已落地系统证明路径可行 | 配置管理、智能解析、协作编排均可复制 |
-| 网站开发有现成 Agent + Skill | `@网站开发` + ui-ux-pro-max 等，可快速交付 Web 应用 |
-| 复制路径 = 标准流程 + 项目配置 + 明确分工 | 本文即团队可复用的起点 |
-
-**最后一句话**：  
-用 AICoding 做系统，不是「把需求扔给 AI 等结果」，而是**产品定义方向、AI 加速实现、人做关键判断**——三个已落地系统，都是这样做出来的。
-
----
-
-## 附录：相关资源
-
-| 资源 | 位置 |
-|------|------|
-| 网站开发 Agent | `.codebuddy/agents/engineering/网站开发.md` |
-| Superpowers + 网站 Skill 清单 | `.codebuddy/skills/README.md` |
-| 专家 Agent 分类 | `.codebuddy/agents/README.md` |
-| 项目记忆 | `CODEBUDDY.md`、`spec/project.md` |
-| Skill 版本锁 | `skills-lock.json` |
-| Superpowers 上游 | [superpowers-zh](https://github.com/jnMetaCode/superpowers-zh) |
-| ui-ux-pro-max 上游 | [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) |
-| Vercel Agent Skills | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) |
-| frontend-design 上游 | [anthropics/skills](https://github.com/anthropics/skills) |
-| 专家角色库 | [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) |
