@@ -3,12 +3,6 @@
 .AppleDouble
 .LSOverride
 
-# 本地参考截图
-images/
-
-# 本地工作文档（PRD、架构草稿等）
-files/
-
 # 编辑器
 .idea/
 .vscode/
