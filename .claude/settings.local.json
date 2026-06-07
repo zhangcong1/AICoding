@@ -19,7 +19,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(cd ai-studio *)",
-      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('../images/file_00000000dfd472099dcbf7851a2cbfa5.png'\\); print\\(im.size\\)\")"
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('../images/file_00000000dfd472099dcbf7851a2cbfa5.png'\\); print\\(im.size\\)\")",
+      "Bash(npx tsc *)"
     ]
   }
 }
