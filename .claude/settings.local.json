@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"from PIL import Image; print\\('Pillow OK', Image.__version__ if hasattr\\(Image,'__version__'\\) else 'installed'\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(npm install *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(rm -rf /Users/zhangcong/Documents/ClaudeCode/personal-workspace/ai-studio/.claude/launch.json)",
+      "Bash(mkdir -p /Users/zhangcong/Documents/ClaudeCode/personal-workspace/.claude)",
+      "mcp__Claude_Preview__preview_start",
+      "Read(//Users/zhangcong/.claude/projects/-Users-zhangcong-Documents-ClaudeCode-personal-workspace/memory/**)",
+      "Bash(ls MEMORY.md)",
+      "Bash(rm -f components/TaskPanel.tsx)",
+      "Bash(npm run *)",
+      "Bash(curl -s \"http://localhost:3000/_next/static/css/app/layout.css\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)"
+    ]
+  }
+}

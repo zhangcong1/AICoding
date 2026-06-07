@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ai-studio",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "ai-studio", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}
