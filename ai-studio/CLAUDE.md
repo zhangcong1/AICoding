@@ -23,7 +23,10 @@ No test runner is configured yet.
 | `lib/data.ts` | Static definitions for all 6 employees (persona, skills, memories, radar, stats) + `WORKFLOW` array that defines the collaboration order |
 | `lib/store.ts` | Zustand store — `submitTask()` drives the simulated workflow timer; `status` and `runs` are the reactive state consumed by every component |
 | `app/page.tsx` | Dashboard: assembles `StatCards`, `EmployeeGrid`, `FlowDiagram`, `TaskPanel`, `TaskList` |
-| `app/studio/page.tsx` | 3D room view — overlays avatars on `public/assets/studio/room.png` via the `SEATS` percentage-coordinate map |
+| `app/studio/page.tsx` | Static room view — overlays avatars on `public/assets/studio/room.png` via the `SEATS` percentage-coordinate map |
+| `app/scene/page.tsx` | **Living office scene** (Marvis / pixel-agents style) — renders `<LivingOffice>` |
+| `components/LivingOffice.tsx` | Interactive stage: dark floor + perspective grid + 6 desks + character portrait tiles with state-colored glow rings, state icons, speech bubbles, neon flow lines, meeting table |
+| `lib/scene.ts` | `useSceneSimulation()` — self-contained 5-state machine (idle/thinking/working/meeting/completed). Ambient loop randomly cycles states + auto-stand-ups; `runTask()` drives `WORKFLOW` staggered every 2.6 s. Independent of `lib/store.ts` so the dashboard is untouched. |
 | `app/employees/[id]/page.tsx` | QoderWake-style profile: radar chart, skill bars, memory timeline, raw-file list |
 
 ### Data flow
@@ -44,6 +47,10 @@ useStudio() store
 avatars/   acai | laozhou | xiaomu | xiaobu | akai | xiaonuo  (256×256 px)
 desks/     same six keys
 studio/    room.png  (913×519 px, 3D office background)
+states/    <id>/{idle,thinking,working,meeting,completed}.png  — 6×5 character state busts,
+           sliced from ../images/file_00000000dfd472099dcbf7851a2cbfa5.png region 01 (grid x:92-812, y:56-558).
+           Kept on the original dark backdrop (no bg removal) and rendered as framed tiles, because the
+           source art is half-body busts — flood-fill bg removal ate into dark clothing.
 ```
 
 ### Tailwind custom tokens (tailwind.config.ts)

@@ -19,10 +19,16 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <QuickSubmit />
           <Link
-            href="/studio"
+            href="/scene"
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 text-white text-sm font-medium shadow-glow hover:opacity-90 transition"
           >
-            <Building2 size={16} /> 切换工作室
+            <Building2 size={16} /> 活体场景
+          </Link>
+          <Link
+            href="/studio"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white ring-1 ring-slate-200 text-ink text-sm font-medium hover:shadow-card transition"
+          >
+            静态工作室
           </Link>
         </div>
       </header>

@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(*)",
       "Bash(pip3 install *)",
       "Bash(python3 -c \"from PIL import Image; print\\('Pillow OK', Image.__version__ if hasattr\\(Image,'__version__'\\) else 'installed'\\)\")",
       "Bash(python3 -c ' *)",
@@ -14,7 +15,11 @@
       "Bash(rm -f components/TaskPanel.tsx)",
       "Bash(npm run *)",
       "Bash(curl -s \"http://localhost:3000/_next/static/css/app/layout.css\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(cd ai-studio *)",
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('../images/file_00000000dfd472099dcbf7851a2cbfa5.png'\\); print\\(im.size\\)\")"
     ]
   }
 }
